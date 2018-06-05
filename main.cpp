@@ -4,7 +4,9 @@
 #include <string>
 
 const char html[] = "<!DOCTYPE html><html><head><title>Hello World</title></head><body><h1>Hello World Wide Web!</h1><p>served by hellows web server<br />(c) Aleksander Zdunek</p></body></html>";
-const char msg[] = "HTTP/1.1 200 OK\nContent-Length: 173\nContent-Type: text/html\r\n<!DOCTYPE html><html><head><title>Hello World</title></head><body><h1>Hello World Wide Web!</h1><p>served by hellows web server<br />(c) Aleksander Zdunek</p></body></html>\r\n";
+const char msg[] = "HTTP/1.1 200 OK\n\n<!DOCTYPE html><html><head><title>Hello World</title></head><body><h1>Hello World Wide Web!</h1><p>served by hellows web server<br />(c) Aleksander Zdunek</p></body></html>";
+//const char msg[] = "HTTP/1.1 200 OK\n\nHello, World!";
+//const char msg[] = "HTTP/1.1 200 OK\nContent-Length: 173\nContent-Type: text/html\r\n<!DOCTYPE html><html><head><title>Hello World</title></head><body><h1>Hello World Wide Web!</h1><p>served by hellows web server<br />(c) Aleksander Zdunek</p></body></html>\r\n";
 //const char response[] = "HTTP/1.1 200 OK";
 //const char content_type[] = "Content-Type: text/html";
 //const char content-length[] = "Content-Length: 175"; 
@@ -30,7 +32,7 @@ int main(int argc, char* argv[])
 
 		char databuffer[512]{0};
 		remote.Receive(databuffer, sizeof(databuffer));
-		std::cout << remote.Send(msg, sizeof(msg)-1) << "\n"; //-1 because don't send null terminator
+		std::cout << remote.Send(msg, sizeof(msg)-1) << "\n"; //sizeof(msg)-1 because don't send null terminator
 		remote.Close();
 
 		std::cout << "----\n" << databuffer << "----\n";
