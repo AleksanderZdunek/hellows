@@ -3,8 +3,36 @@
 #include <stdexcept>
 #include <cstring>
 
+#if defined __windows__
+void Socket::WinInit()
+{
+	std::cout << "Inside WinInit" << std::endl;
+	WSADATA wsaData;
+
+	int iResult;
+
+	//Initialize Winsock
+	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (iResult != 0)
+	{
+		std::cout << "WSAStartup failed: " << iResult << std::endl;
+		throw std::runtime_error("WSAStartup failed");
+	}
+}
+
+void Socket::WinCleanup()
+{
+	WSACleanup();
+}
+#endif
+
 Socket::Socket(const char* const ipAddress, unsigned short port)
 {
+
+	#if defined __windows__
+		WinInit();
+	#endif
+
     /*Create a reliable stream socket using TCP*/
 	//if( (socketHandle = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0 )
     if( (socketHandle = socket(PF_INET, SOCK_STREAM, IPPROTO_IP)) < 0 )
@@ -24,7 +52,12 @@ Socket::Socket(int handle, const sockaddr_in& addr) : socketHandle(handle), addr
 {
 }
 
-Socket::~Socket(){}
+Socket::~Socket()
+{
+	//#if defined __windows__
+	//WinCleanup(); //fix me
+	//#endif
+}
 
 bool Socket::IsOpen() const
 {
@@ -37,8 +70,10 @@ void Socket::Close()
     {
         #if defined __linux__
         close(socketHandle);
-        socketHandle = -1;
+		#elif defined __windows__
+		closesocket(socketHandle);
         #endif
+		socketHandle = -1;
     }
 }
 
@@ -110,7 +145,9 @@ ClientSocket ServerSocket::Accept()
 
     #if defined __linux__
     clientSocketHandle = accept(socketHandle, (struct sockaddr *) &clientAddr, (socklen_t *)&clientAddrLength);
-    #endif
+	#elif defined __windows__
+	clientSocketHandle = accept(socketHandle, (struct sockaddr*) &clientAddr, &clientAddrLength);
+	#endif
     if ( clientSocketHandle < 0 )
     {
         std::cout << "Server Socket Accept Error" << std::endl;

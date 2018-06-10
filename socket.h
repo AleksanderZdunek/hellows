@@ -6,6 +6,14 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#elif defined _WIN32 || defined _WIN64
+#define __windows__
+#include <winsock2.h>
+#include <WS2tcpip.h>
+//remember to link Ws2_32.lib //
+#endif
+#if !defined __linux__ && !defined __windows__
+#error Neither Linux or Windows detected
 #endif
 
 #include <exception>
@@ -37,6 +45,12 @@ protected:
     Socket(int handle, const sockaddr_in& addr);
     int socketHandle;
     sockaddr_in addr;
+private:
+#if defined __windows__
+	bool winsockInitialized;
+	void WinInit();
+	void WinCleanup();
+#endif
 };
 
 class ClientSocket : public Socket
